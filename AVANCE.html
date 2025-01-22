@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barras de Progreso</title>
+    <style>
+        /* Fondo de la página */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('mapa.jpg'); /* Imagen de fondo de la página */
+            background-size: cover; /* Cubre toda la pantalla */
+            background-position: center; /* Centra la imagen */
+            background-attachment: fixed; /* Fija la imagen al fondo */
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+        }
+
+       .progress-item {
+            margin: 5px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Alinear los elementos al inicio */
+        }
+        .progress-text {
+            font-weight: bold;
+            margin-right: 20px; /* Espacio entre el nombre y la barra de progreso */
+            min-width: 150px; /* Establecer un ancho mínimo para los nombres */
+        }
+        .progress-container {
+            width: 100%;
+            height: 40px;
+            background-color: #CFD0D3;
+            border-radius: 5px;
+            position: relative;
+            /*background-image: url('pista.jpg'); /* Imagen de fondo para la barra */
+            background-size: cover;
+            background-position: center;
+        }
+        .progress-bar {
+            height: 100%;
+            text-align: center;
+            color: white;
+            line-height: 40px;
+            border-radius: 10px;
+            position: relative;
+	    background-image: url('pista.jpg'); /* Imagen de fondo para la barra */
+	    background-position: center;
+            background-color: transparent; /* Sin color de fondo, usa la imagen de fondo */
+        }
+        .airplane-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+            background: url('air.png') no-repeat center center; /* Imagen local del avión */
+            background-size: contain;
+            transition: left 0.3s ease-in-out; /* Animación suave al mover el avión */
+	}
+        .end-image {
+            width: 80px;
+            height: 80px;
+            background: url('meta.png') no-repeat center center; /* Imagen al final de la barra */
+            background-size: contain;
+            margin-left: 10px; /* Espacio entre la barra y la imagen */
+        }
+    </style>
+</head>
+<body>
+    <h1>Progreso desde Google Sheets</h1>
+    <div id="progressBars"></div>
+
+    <script>
+        const SHEET_ID = '1X0-QfIXBLqazyrDrxssfhPd_GtWSwnuA9EzSrAVlWTQ'; // Tu ID de Google Sheets
+        const API_KEY = 'AIzaSyBhtgeRI0xr7Tnx4qxvG7kEOlbk_w27SOk'; // Tu clave API
+        const RANGE = 'AVANCE!A2:B';  // Ajusta el rango según tu hoja de cálculo.
+
+        async function fetchData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log(data); // Para depurar y ver la respuesta JSON
+
+                if (data.values) {
+                    const values = data.values;
+                    const progressContainer = document.getElementById('progressBars');
+                    progressContainer.innerHTML = ''; // Limpiar el contenedor
+
+                    values.forEach(row => {
+                        const name = row[0]; // Nombre de la tarea
+                        const progress = parseInt(row[1], 10); // Porcentaje de progreso
+
+                        const progressItem = document.createElement('div');
+                        progressItem.classList.add('progress-item');
+                        
+                        const progressText = document.createElement('div');
+                        progressText.classList.add('progress-text');
+                        progressText.innerText = name; // Nombre antes de la barra de progreso
+
+                        const progressBarDiv = document.createElement('div');
+                        progressBarDiv.classList.add('progress-container');
+                        
+                        const progressBar = document.createElement('div');
+                        progressBar.classList.add('progress-bar');
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.innerText = `${progress}%`;
+
+                        const airplaneIcon = document.createElement('div');
+                        airplaneIcon.classList.add('airplane-icon'); // Agregar el avión al final
+                        airplaneIcon.style.left = `calc(${progress}% - 25px)`; // Mover el avión según el progreso
+
+                        // Imagen al final de la barra de progreso
+                        const endImage = document.createElement('div');
+                        endImage.classList.add('end-image'); // Imagen al final
+
+                        progressBarDiv.appendChild(progressBar);
+                        progressBarDiv.appendChild(airplaneIcon); // Colocar el icono del avión
+                        progressItem.appendChild(progressText); // Colocar el nombre antes de la barra
+                        progressItem.appendChild(progressBarDiv); // Colocar la barra de progreso
+                        progressItem.appendChild(endImage); // Colocar la imagen al final
+                        progressContainer.appendChild(progressItem);
+                    });
+                } else {
+                    console.error('No se encontraron datos en la hoja');
+                }
+            } catch (error) {
+                console.error('Error al obtener los datos de la API:', error);
+            }
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>

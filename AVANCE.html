@@ -137,6 +137,20 @@
         }
 
         fetchData();
+//*******************************************************
+      function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleTimeString();
+        }
+
+        // Actualiza el tiempo cada segundo
+        setInterval(updateTime, 1000);
+
+        // Recarga la página cada 5 segundos
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
+//*******************************************************	    
     </script>
 </body>
 </html>
